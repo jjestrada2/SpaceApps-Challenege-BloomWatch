@@ -1,0 +1,143 @@
+# Copyright Bunting Labs, Inc. 2025
+services:
+  app:
+    container_name: mundi-app
+    platform: linux/amd64
+    image: "${APP_IMAGE:-mundi-public:local}"
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - VITE_WEBSITE_DOMAIN=http://localhost:8000
+      x-bake:
+        tags:
+          - "${APP_IMAGE:-mundi-public:local}"
+    ports:
+      - "8000:8000"
+    depends_on:
+      minio:
+        condition: service_healthy
+      mc:
+        condition: service_completed_successfully
+      postgresdb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qgis-processing:
+        condition: service_healthy
+    environment:
+      - MUNDI_AUTH_MODE=edit # "edit" or "view_only"
+      - S3_ACCESS_KEY_ID=s3user
+      - S3_SECRET_ACCESS_KEY=backup123
+      - S3_DEFAULT_REGION=us-east-1
+      - S3_ENDPOINT_URL=http://minio:9000
+      - S3_BUCKET=test-bucket
+      - WEBSITE_DOMAIN=http://localhost:8000
+      - QGIS_PROCESSING_URL=http://qgis-processing:8817
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - OPENAI_API_KEY=$OPENAI_API_KEY
+      - POSTGRES_HOST=postgresdb
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=mundidb
+      - POSTGRES_USER=mundiuser
+      - POSTGRES_PASSWORD=gdalpassword
+      - PYTHONUNBUFFERED=1
+      - PYTHONIOENCODING=utf-8
+      - POSTGIS_LOCALHOST_POLICY=docker_rewrite
+      # - OPENAI_BASE_URL=http://host.docker.internal:11434/v1
+      # - OPENAI_API_KEY=ollama
+      # - OPENAI_MODEL=orieg/gemma3-tools:1b
+      #-  MUNDI_EMBED_ALLOWED_ORIGINS=http://localhost:4321
+    command: uvicorn src.wsgi:app --host 0.0.0.0 --port 8000 --log-level debug --access-log --use-colors
+    volumes:
+      - ./src:/app/src
+      - ./alembic:/app/alembic
+      - ./conftest.py:/app/conftest.py
+      - ./docs:/app/docs
+
+  minio:
+    image: bitnamilegacy/minio:latest
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=password
+      - MINIO_DEFAULT_BUCKETS=test-bucket
+    volumes:
+      - ./data/minio:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 1s
+      timeout: 2s
+      retries: 10
+
+  mc:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio:9000 admin password;
+      /usr/bin/mc admin user add myminio s3user backup123;
+      /usr/bin/mc admin policy attach myminio readwrite --user s3user ||
+      (sleep 3 && /usr/bin/mc admin policy attach myminio readwrite --user s3user);
+      echo 'S3 user setup complete!';
+      "
+
+  postgresdb:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=mundidb
+      - POSTGRES_USER=mundiuser
+      - POSTGRES_PASSWORD=gdalpassword
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mundiuser -d mundidb"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+
+  redis:
+    image: redis:alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 2s
+      retries: 5
+
+  qgis-processing:
+    platform: linux/amd64
+    image: ${QGIS_PROCESSING_IMAGE:-qgis-processing:local}
+    build:
+      context: ./qgis-processing
+      dockerfile: Dockerfile
+      x-bake:
+        tags:
+          - qgis-processing:local
+    command: python -m uvicorn server:app --host 0.0.0.0 --port 8817
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8817/health"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    image: node:20
+    working_dir: /app/frontendts
+    command: sh -c "npm install --legacy-peer-deps && npm run dev -- --host 0.0.0.0 --port 5173"
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_WEBSITE_DOMAIN=http://localhost:8000
+      - VITE_EMAIL_VERIFICATION=disable
+      - BACKEND_URL=http://app:8000
+    volumes:
+      - "./frontendts:/app/frontendts"
+      - /app/frontendts/node_modules
+    depends_on:
+      app:
+        condition: service_started

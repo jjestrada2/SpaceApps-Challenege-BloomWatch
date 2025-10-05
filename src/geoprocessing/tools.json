@@ -1,0 +1,331 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "gdal_warpreproject",
+      "description": "Reprojects a raster layer to a different CRS.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "INPUT": {
+            "type": "string",
+            "description": "Reprojects a raster layer to a different CRS"
+          },
+          "TARGET_CRS": {
+            "type": "string",
+            "description": "Assigns a CRS to a raster input. Defaults to EPSG:4326 if not set."
+          }
+        },
+        "required": [
+          "INPUT"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "native_aggregate",
+      "description": "Groups features in a vector layer by a chosen expression and calculates summary values for each group using specified aggregate functions.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "INPUT": {
+            "type": "string",
+            "description": "Aggregates a vector or table layer using specified summary functions."
+          },
+          "AGGREGATES": {
+            "type": "array",
+            "description": "Aggregates vector layer fields using functions like sum or mean.",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "INPUT",
+          "AGGREGATES"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "native_buffer",
+      "description": "Buffers vector layers to a specified distance",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "INPUT": {
+            "type": "string",
+            "description": "Input vector layer to buffer"
+          },
+          "DISTANCE": {
+            "type": "number",
+            "description": "Buffers vector layers to a specified distance",
+            "default": 10.0
+          }
+        },
+        "required": [
+          "INPUT"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "native_dissolve",
+      "description": "Merges features in a vector layer based on shared attributes or all features into one.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "INPUT": {
+            "type": "string",
+            "description": "Dissolves features in a vector layer."
+          }
+        },
+        "required": [
+          "INPUT"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "native_fieldcalculator",
+      "description": "Adds or updates a field in a vector layer using a formula expression per feature",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "INPUT": {
+            "type": "string",
+            "description": "Calculates a new or updated field in a vector layer using a formula"
+          },
+          "FIELD_NAME": {
+            "type": "string",
+            "description": "Calculates a new or updated field in a vector layer using a formula."
+          },
+          "FORMULA": {
+            "type": "string",
+            "description": "Calculates a new or updated field for each vector feature using a QGIS expression formula."
+          }
+        },
+        "required": [
+          "INPUT",
+          "FIELD_NAME",
+          "FORMULA"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "native_fixgeometries",
+      "description": "Repairs invalid geometries in a vector layer.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "INPUT": {
+            "type": "string",
+            "description": "Repairs invalid geometries in a vector layer."
+          }
+        },
+        "required": [
+          "INPUT"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "native_geometrybyexpression",
+      "description": "Modifies vector layer geometries using a geometry expression.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "INPUT": {
+            "type": "string",
+            "description": "Modifies the geometry of vector layer features using an expression"
+          }
+        },
+        "required": [
+          "INPUT"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "native_joinattributesbylocation",
+      "description": "Performs a spatial join by merging attributes from one vector layer to another where features meet a spatial relationship.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "INPUT": {
+            "type": "string",
+            "description": "Joins attributes from one vector layer to another based on spatial relationship"
+          },
+          "JOIN": {
+            "type": "string",
+            "description": "Joins attributes from a vector layer to another vector layer based on spatial location."
+          }
+        },
+        "required": [
+          "INPUT",
+          "JOIN"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "native_mergevectorlayers",
+      "description": "Merges multiple vector layers of the same geometry type into one layer, keeping all fields and features.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "LAYERS": {
+            "type": "array",
+            "description": "Merges multiple vector layers of the same geometry type into one layer.",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "LAYERS"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "native_reprojectlayer",
+      "description": "Reprojects a vector layer to another CRS.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "INPUT": {
+            "type": "string",
+            "description": "Reprojects a vector layer to a different CRS"
+          },
+          "TARGET_CRS": {
+            "type": "string",
+            "description": "Reprojects a vector layer to a different CRS.",
+            "default": "EPSG:4326"
+          }
+        },
+        "required": [
+          "INPUT"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "qgis_clip",
+      "description": "Clips a vector layer using the boundaries of another vector polygon layer.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "INPUT": {
+            "type": "string",
+            "description": "Clips features from a vector layer using the boundary of another vector layer."
+          },
+          "OVERLAY": {
+            "type": "string",
+            "description": "Clips a vector layer to polygons from another vector layer. Only features inside the overlay polygons are kept."
+          }
+        },
+        "required": [
+          "INPUT",
+          "OVERLAY"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "qgis_intersection",
+      "description": "Creates a new vector layer with features where the input and overlay layers intersect, combining attributes from both.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "INPUT": {
+            "type": "string",
+            "description": "Intersects two vector layers and extracts overlapping features."
+          },
+          "OVERLAY": {
+            "type": "string",
+            "description": "Finds overlapping areas between two vector layers."
+          }
+        },
+        "required": [
+          "INPUT",
+          "OVERLAY"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "qgis_joinbylocationsummary",
+      "description": "Joins two vector layers by spatial relationship and adds summary statistics from the join layer to the input layer.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "INPUT": {
+            "type": "string",
+            "description": "Joins vector layers by location and adds summary attributes from the join layer."
+          },
+          "JOIN": {
+            "type": "string",
+            "description": "Joins attributes from a vector layer based on spatial relationships with another vector layer."
+          }
+        },
+        "required": [
+          "INPUT",
+          "JOIN"
+        ]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "qgis_statisticsbycategories",
+      "description": "Calculates grouped statistics for vector layer attributes based on unique values in specified category fields. Outputs a summary table.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "INPUT": {
+            "type": "string",
+            "description": "Calculates statistics for a vector layer grouped by a category field."
+          },
+          "CATEGORIES_FIELD_NAME": {
+            "type": "array",
+            "description": "Calculates statistics for vector features grouped by values in the specified field(s)",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "INPUT",
+          "CATEGORIES_FIELD_NAME"
+        ]
+      }
+    }
+  }
+]
